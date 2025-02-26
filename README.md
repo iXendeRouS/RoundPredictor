@@ -7,5 +7,6 @@ RoundPredictor
 </h1>
 
 Predicts rounds and stuff.
+Press R to log the current round's bloon emissions.
 
 [![Requires BTD6 Mod Helper](https://raw.githubusercontent.com/gurrenm3/BTD-Mod-Helper/master/banner.png)](https://github.com/gurrenm3/BTD-Mod-Helper#readme)
