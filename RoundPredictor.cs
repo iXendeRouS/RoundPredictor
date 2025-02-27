@@ -32,7 +32,7 @@ public class RoundPredictor : BloonsTD6Mod
         if (Settings.actionKey.JustPressed())
         {
             var seed = InGame.instance.bridge.GetFreeplayRoundSeed();
-            var round = 249;// InGame.instance.currentRoundId;
+            var round = InGame.instance.currentRoundId;
 
             FreeplayRoundManager fr = new(InGame.instance.GetGameModel());
             fr.SetSeed(seed);
