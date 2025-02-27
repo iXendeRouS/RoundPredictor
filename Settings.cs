@@ -9,5 +9,12 @@ namespace RoundPredictor
         {
             description = "Press to log the current round's bloon emissions."
         };
+
+        public static readonly ModSettingInt seed = new ModSettingInt(-1)
+        {
+            description = "Sets the seed to the given value. -1 to disable",
+            min = -1,
+            max = 999999999
+        };
     }
 }
