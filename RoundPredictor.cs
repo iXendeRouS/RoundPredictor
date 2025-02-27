@@ -100,12 +100,18 @@ public class RoundPredictor : BloonsTD6Mod
     {
         base.OnMatchStart();
 
+        if (InGameData.CurrentGame.IsSandbox && Settings.autoSetSeedInSandbox && Settings.seed != -1)
+        {
+            SetSeed(Settings.seed);
+            return;
+        }
+
         var currentSeed = InGame.instance.bridge.GetFreeplayRoundSeed();
-        MelonLogger.Msg($"current currentSeed: {currentSeed}");
+        MelonLogger.Msg($"current seed: {currentSeed}");
 
         if (Settings.seed == -1 || Settings.seed == currentSeed) return;
 
-        PopupScreen.instance.SafelyQueue(screen => screen.ShowPopup(PopupScreen.Placement.menuCenter, "SeedUtils", $"Do you want to change the current seed {currentSeed} to {Settings.seed.GetValue()}?",
+        PopupScreen.instance.SafelyQueue(screen => screen.ShowPopup(PopupScreen.Placement.menuCenter, "RoundPredictor", $"Do you want to change the current seed {currentSeed} to {Settings.seed.GetValue()}?",
                             new Action(() => SetSeed(Settings.seed)), "Yes", null, "No",
                             Popup.TransitionAnim.Scale, PopupScreen.BackGround.Grey));
     }
@@ -114,7 +120,7 @@ public class RoundPredictor : BloonsTD6Mod
     {
         MelonLogger.Msg($"Setting current seed to {seed}");
 
-        MapSaveDataModel? saveModel = InGame.instance.CreateCurrentMapSave(InGame.instance.currentRoundId, InGame.instance.MapDataSaveId);
+        MapSaveDataModel? saveModel = InGame.instance.CreateCurrentMapSave(InGame.instance.GetSimulation().GetCurrentRound() - 1, InGame.instance.MapDataSaveId);
 
         saveModel.freeplayRoundSeed = Settings.seed;
 

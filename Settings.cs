@@ -16,5 +16,10 @@ namespace RoundPredictor
             min = -1,
             max = 999999999
         };
+
+        public static readonly ModSettingBool autoSetSeedInSandbox = new(true)
+        {
+            description = "Automatically set the seed in sandbox"
+        };
     }
 }
