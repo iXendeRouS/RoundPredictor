@@ -3,7 +3,7 @@ namespace RoundPredictor;
 public static class ModHelperData
 {
     public const string WorksOnVersion = "47.0";
-    public const string Version = "0.0.4";
+    public const string Version = "0.0.5";
     public const string Name = "RoundPredictor";
 
     public const string Description = "Predicts rounds and stuff";
