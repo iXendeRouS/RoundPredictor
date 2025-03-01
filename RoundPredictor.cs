@@ -125,6 +125,10 @@ public class RoundPredictor : BloonsTD6Mod
         saveModel.freeplayRoundSeed = Settings.seed;
 
         InGame.Bridge.ExecuteContinueFromCheckpoint(InGame.Bridge.MyPlayerNumber, new KonFuze(), ref saveModel, true, false);
-        Game.Player.Data.SetSavedMap(saveModel.savedMapsId, saveModel);
+
+        if (!InGameData.CurrentGame.IsSandbox)
+        {
+            Game.Player.Data.SetSavedMap(saveModel.savedMapsId, saveModel);
+        }
     }
 }
