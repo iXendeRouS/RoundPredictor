@@ -5,11 +5,6 @@ using Il2CppAssets.Scripts.Unity.UI_New.InGame;
 using Il2CppAssets.Scripts.Simulation.Track.RoundManagers;
 using BTD_Mod_Helper.Extensions;
 using System.Collections.Generic;
-using Il2CppAssets.Scripts.Unity;
-using Il2CppAssets.Scripts.Utils;
-using Il2CppAssets.Scripts.Models.Profile;
-using Il2CppAssets.Scripts.Unity.UI_New.Popups;
-using System;
 
 [assembly: MelonInfo(typeof(RoundPredictor.RoundPredictor), ModHelperData.Name, ModHelperData.Version, ModHelperData.RepoOwner)]
 [assembly: MelonGame("Ninja Kiwi", "BloonsTD6")]
@@ -29,26 +24,34 @@ public class RoundPredictor : BloonsTD6Mod
 
         if (InGame.instance == null) return;
 
-        if (Settings.actionKey.JustPressed())
+        if (Settings.PredictRoundsKey.JustPressed())
         {
-            var seed = InGame.instance.bridge.GetFreeplayRoundSeed();
-            var round = InGame.instance.currentRoundId;
+            LogRoundEmissions(Settings.NumberOfRoundsToPredict);
+        }
+    }
 
-            FreeplayRoundManager fr = new(InGame.instance.GetGameModel());
-            fr.SetSeed(seed);
+    private static void LogRoundEmissions(int roundsToPredict)
+    {
+        var seed = InGame.instance.bridge.GetFreeplayRoundSeed();
+        FreeplayRoundManager fr = new(InGame.instance.GetGameModel());
+        fr.SetSeed(seed);
 
+        for (int i = 0; i < roundsToPredict; i++)
+        {
+            int round = InGame.instance.currentRoundId + i;
+            int actualRound = round + 1;
             var emissions = fr.GetRoundEmissions(round);
 
             if (emissions.Count == 0)
             {
-                MelonLogger.Msg($"There doesn't seem to be any emmissions for currentSeed: {seed}, round: {round}");
-                return;
+                MelonLogger.Msg($"No emissions for seed: {seed}, round: {round + 1}");
+                continue;
             }
 
-            int badcount = 0;
+            int badCount = 0;
+            int fbadCount = 0;
             string previousBloon = null;
             int count = 0;
-
             List<string> formattedOutput = new List<string>();
 
             foreach (var emission in emissions)
@@ -65,15 +68,12 @@ public class RoundPredictor : BloonsTD6Mod
                     {
                         formattedOutput.Add($"{previousBloon,-18} | {count,-5} |");
                     }
-
                     previousBloon = currentBloon;
                     count = 1;
                 }
 
-                if (currentBloon.Contains("Bad"))
-                {
-                    badcount++;
-                }
+                if (currentBloon.Equals("Bad")) badCount++;
+                else if (currentBloon.Equals("BadFortified")) fbadCount++;
             }
 
             if (previousBloon != null)
@@ -82,7 +82,18 @@ public class RoundPredictor : BloonsTD6Mod
             }
 
             MelonLogger.Msg("--------------------------------------");
-            MelonLogger.Msg($"currentSeed: {seed}, round: {round + 1} bads: {badcount}, budget multiplier: {fr.budgetMultiplierThisRound}");
+            MelonLogger.Msg($"Seed: {seed} | Round: {actualRound}");
+
+            if (Settings.LogBads)
+            {
+                MelonLogger.Msg($"Bads: {badCount} | FBads: {fbadCount}");
+            }
+
+            if (Settings.LogMultipliers)
+            {
+                MelonLogger.Msg($"Speed: x{GetSpeedMultiplier(actualRound):F2} | Health: x{GetHealthMultiplier(actualRound):F2}");
+            }
+
             MelonLogger.Msg("--------------------------------------");
             MelonLogger.Msg("Bloon              | Count |");
             MelonLogger.Msg("--------------------------------------");
@@ -93,42 +104,30 @@ public class RoundPredictor : BloonsTD6Mod
             }
 
             MelonLogger.Msg("--------------------------------------");
+            MelonLogger.Msg("");
         }
     }
 
-    public override void OnMatchStart()
+    private static double GetSpeedMultiplier(int round)
     {
-        base.OnMatchStart();
-
-        if (InGameData.CurrentGame.IsSandbox && Settings.autoSetSeedInSandbox && Settings.seed != -1)
-        {
-            SetSeed(Settings.seed);
-            return;
-        }
-
-        var currentSeed = InGame.instance.bridge.GetFreeplayRoundSeed();
-        MelonLogger.Msg($"current seed: {currentSeed}");
-
-        if (Settings.seed == -1 || Settings.seed == currentSeed) return;
-
-        PopupScreen.instance.SafelyQueue(screen => screen.ShowPopup(PopupScreen.Placement.menuCenter, "RoundPredictor", $"Do you want to change the current seed {currentSeed} to {Settings.seed.GetValue()}?",
-                            new Action(() => SetSeed(Settings.seed)), "Yes", null, "No",
-                            Popup.TransitionAnim.Scale, PopupScreen.BackGround.Grey));
+        if (round <= 80) return 1;
+        if (round <= 100) return 1 + (round - 80) * 0.02;
+        if (round <= 150) return 1.6 + (round - 101) * 0.02;
+        if (round <= 200) return 3.0 + (round - 151) * 0.02;
+        if (round <= 250) return 4.5 + (round - 201) * 0.02;
+        return 6.0 + (round - 252) * 0.02;
     }
 
-    private static void SetSeed(int seed)
+    private static double GetHealthMultiplier(int round)
     {
-        MelonLogger.Msg($"Setting current seed to {seed}");
-
-        MapSaveDataModel? saveModel = InGame.instance.CreateCurrentMapSave(InGame.instance.GetSimulation().GetCurrentRound() - 1, InGame.instance.MapDataSaveId);
-
-        saveModel.freeplayRoundSeed = Settings.seed;
-
-        InGame.Bridge.ExecuteContinueFromCheckpoint(InGame.Bridge.MyPlayerNumber, new KonFuze(), ref saveModel, true, false);
-
-        if (!InGameData.CurrentGame.IsSandbox)
-        {
-            Game.Player.Data.SetSavedMap(saveModel.savedMapsId, saveModel);
-        }
+        if (round <= 80) return 1;
+        if (round <= 100) return (round - 30) / 50.0;
+        if (round <= 124) return (round - 72) / 20.0;
+        if (round <= 150) return ((3 * round) - 320) / 20.0;
+        if (round <= 250) return ((7 * round) - 920) / 20.0;
+        if (round <= 300) return round - 208.5;
+        if (round <= 400)  return ((3 * round) - 717) / 2.0;
+        if (round <= 500) return ((5 * round) - 1517) / 2.0;
+        return (5 * round) - 2008.5;
     }
 }

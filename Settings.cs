@@ -5,21 +5,26 @@ namespace RoundPredictor
 {
     public class Settings : ModSettings
     {
-        public static readonly ModSettingHotkey actionKey = new(UnityEngine.KeyCode.R)
+        public static readonly ModSettingHotkey PredictRoundsKey = new(UnityEngine.KeyCode.R)
         {
-            description = "Press to log the current round's bloon emissions."
+            description = "Press to log the predictions for the next few rounds of freeplay generation."
         };
 
-        public static readonly ModSettingInt seed = new ModSettingInt(-1)
+        public static readonly ModSettingInt NumberOfRoundsToPredict = new(1)
         {
-            description = "Sets the seed to the given value. -1 to disable",
-            min = -1,
-            max = 999999999
+            description = "The number of rounds to predict at a time.",
+            min = 1,
+            max = 1000
         };
 
-        public static readonly ModSettingBool autoSetSeedInSandbox = new(true)
+        public static readonly ModSettingBool LogMultipliers = new(false)
         {
-            description = "Automatically set the seed in sandbox"
+            description = "Log additional information like speed and health multipliers per round."
+        };
+
+        public static readonly ModSettingBool LogBads = new(true)
+        {
+            description = "Log the number of BADs and FBADs in a round."
         };
     }
 }
