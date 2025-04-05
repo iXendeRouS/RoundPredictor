@@ -8,4 +8,25 @@ RoundPredictor
 
 Press R to predict the next few rounds of freeplay generation.
 
+An example output:
+
+```
+--------------------------------------
+Seed: 113521835 | Round: 148
+Bads: 0 | FBads: 0
+Speed: x2.54 | Health: x6.20
+--------------------------------------
+  Time  | Bloon              | Count |
+--------------------------------------
+  0.00s | Zomg               | 13    |
+ 16.00s | DdtCamo            | 6     |
+ 18.50s | Bfb                | 6     |
+ 23.00s | Zomg               | 7     |
+ 30.00s | Bfb                | 38    |
+ 40.50s | DdtFortifiedCamo   | 12    |
+ 44.00s | MoabFortified      | 37    |
+ 47.50s | DdtFortifiedCamo   | 4     |
+--------------------------------------
+```
+
 [![Requires BTD6 Mod Helper](https://raw.githubusercontent.com/gurrenm3/BTD-Mod-Helper/master/banner.png)](https://github.com/gurrenm3/BTD-Mod-Helper#readme)
