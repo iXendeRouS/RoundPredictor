@@ -42,7 +42,6 @@ public class RoundPredictor : BloonsTD6Mod
         for (int i = 0; i < roundsToPredict; i++)
         {
             int internalRoundId = startRound + i;
-
             int displayRound = internalRoundId + 1;
 
             var emissions = fr.GetRoundEmissions(internalRoundId);
@@ -57,11 +56,13 @@ public class RoundPredictor : BloonsTD6Mod
             int fbadCount = 0;
             string previousBloon = null;
             int count = 0;
+            float currentGroupStartTime = -1;
             List<string> formattedOutput = new List<string>();
 
             foreach (var emission in emissions)
             {
                 string currentBloon = emission.bloon;
+                float currentTime = emission.time;
 
                 if (currentBloon == previousBloon)
                 {
@@ -71,10 +72,11 @@ public class RoundPredictor : BloonsTD6Mod
                 {
                     if (previousBloon != null)
                     {
-                        formattedOutput.Add($"{previousBloon,-18} | {count,-5} |");
+                        formattedOutput.Add($"{currentGroupStartTime / 60,6:F2}s | {previousBloon,-18} | {count,-5} |");
                     }
                     previousBloon = currentBloon;
                     count = 1;
+                    currentGroupStartTime = currentTime;
                 }
 
                 if (currentBloon.Equals("Bad")) badCount++;
@@ -83,32 +85,32 @@ public class RoundPredictor : BloonsTD6Mod
 
             if (previousBloon != null)
             {
-                formattedOutput.Add($"{previousBloon,-18} | {count,-5} |");
+                formattedOutput.Add($"{currentGroupStartTime / 60,6:F2}s | {previousBloon,-18} | {count,-5} |");
             }
 
-            MelonLogger.Msg("----------------------------");
-            MelonLogger.Msg($"Seed: {seed}   Round: {displayRound}");
+            MelonLogger.Msg("--------------------------------------");
+            MelonLogger.Msg($"Seed: {seed} | Round: {displayRound}");
 
             if (Settings.LogBads)
             {
-                MelonLogger.Msg($"Bads: {badCount}           FBads: {fbadCount}");
+                MelonLogger.Msg($"Bads: {badCount} | FBads: {fbadCount}");
             }
 
             if (Settings.LogMultipliers)
             {
-                MelonLogger.Msg($"Speed: x{GetSpeedMultiplier(displayRound):F2}   Health: x{GetHealthMultiplier(displayRound):F2}");
+                MelonLogger.Msg($"Speed: x{GetSpeedMultiplier(displayRound):F2} | Health: x{GetHealthMultiplier(displayRound):F2}");
             }
 
-            MelonLogger.Msg("----------------------------");
-            MelonLogger.Msg("Bloon              | Count |");
-            MelonLogger.Msg("----------------------------");
+            MelonLogger.Msg("--------------------------------------");
+            MelonLogger.Msg("  Time  | Bloon              | Count |");
+            MelonLogger.Msg("--------------------------------------");
 
             foreach (var line in formattedOutput)
             {
                 MelonLogger.Msg(line);
             }
 
-            MelonLogger.Msg("----------------------------");
+            MelonLogger.Msg("--------------------------------------");
             MelonLogger.Msg("");
         }
     }
