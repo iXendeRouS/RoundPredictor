@@ -5,6 +5,7 @@ using Il2CppAssets.Scripts.Unity.UI_New.InGame;
 using Il2CppAssets.Scripts.Simulation.Track.RoundManagers;
 using BTD_Mod_Helper.Extensions;
 using System.Collections.Generic;
+using System;
 
 [assembly: MelonInfo(typeof(RoundPredictor.RoundPredictor), ModHelperData.Name, ModHelperData.Version, ModHelperData.RepoOwner)]
 [assembly: MelonGame("Ninja Kiwi", "BloonsTD6")]
@@ -36,15 +37,19 @@ public class RoundPredictor : BloonsTD6Mod
         FreeplayRoundManager fr = new(InGame.instance.GetGameModel());
         fr.SetSeed(seed);
 
+        int startRound = Math.Max(InGame.instance.currentRoundId, 140);
+
         for (int i = 0; i < roundsToPredict; i++)
         {
-            int round = InGame.instance.currentRoundId + i;
-            int actualRound = round + 1;
-            var emissions = fr.GetRoundEmissions(round);
+            int internalRoundId = startRound + i;
+
+            int displayRound = internalRoundId + 1;
+
+            var emissions = fr.GetRoundEmissions(internalRoundId);
 
             if (emissions.Count == 0)
             {
-                MelonLogger.Msg($"No emissions for seed: {seed}, round: {round + 1}");
+                MelonLogger.Msg($"No emissions for seed: {seed}, round: {displayRound}");
                 continue;
             }
 
@@ -81,29 +86,29 @@ public class RoundPredictor : BloonsTD6Mod
                 formattedOutput.Add($"{previousBloon,-18} | {count,-5} |");
             }
 
-            MelonLogger.Msg("--------------------------------------");
-            MelonLogger.Msg($"Seed: {seed} | Round: {actualRound}");
+            MelonLogger.Msg("----------------------------");
+            MelonLogger.Msg($"Seed: {seed}   Round: {displayRound}");
 
             if (Settings.LogBads)
             {
-                MelonLogger.Msg($"Bads: {badCount} | FBads: {fbadCount}");
+                MelonLogger.Msg($"Bads: {badCount}           FBads: {fbadCount}");
             }
 
             if (Settings.LogMultipliers)
             {
-                MelonLogger.Msg($"Speed: x{GetSpeedMultiplier(actualRound):F2} | Health: x{GetHealthMultiplier(actualRound):F2}");
+                MelonLogger.Msg($"Speed: x{GetSpeedMultiplier(displayRound):F2}   Health: x{GetHealthMultiplier(displayRound):F2}");
             }
 
-            MelonLogger.Msg("--------------------------------------");
+            MelonLogger.Msg("----------------------------");
             MelonLogger.Msg("Bloon              | Count |");
-            MelonLogger.Msg("--------------------------------------");
+            MelonLogger.Msg("----------------------------");
 
             foreach (var line in formattedOutput)
             {
                 MelonLogger.Msg(line);
             }
 
-            MelonLogger.Msg("--------------------------------------");
+            MelonLogger.Msg("----------------------------");
             MelonLogger.Msg("");
         }
     }
@@ -126,7 +131,7 @@ public class RoundPredictor : BloonsTD6Mod
         if (round <= 150) return ((3 * round) - 320) / 20.0;
         if (round <= 250) return ((7 * round) - 920) / 20.0;
         if (round <= 300) return round - 208.5;
-        if (round <= 400)  return ((3 * round) - 717) / 2.0;
+        if (round <= 400) return ((3 * round) - 717) / 2.0;
         if (round <= 500) return ((5 * round) - 1517) / 2.0;
         return (5 * round) - 2008.5;
     }
