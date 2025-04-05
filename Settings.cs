@@ -7,7 +7,7 @@ namespace RoundPredictor
     {
         public static readonly ModSettingHotkey PredictRoundsKey = new(UnityEngine.KeyCode.R)
         {
-            description = "Press to log the predictions for the next few rounds of freeplay generation."
+            description = "Press to log the predictions for the next few rounds of freeplay generation. Will start predicting from r141 if current round is under that."
         };
 
         public static readonly ModSettingInt NumberOfRoundsToPredict = new(1)
@@ -19,7 +19,7 @@ namespace RoundPredictor
 
         public static readonly ModSettingBool LogMultipliers = new(false)
         {
-            description = "Log additional information like speed and health multipliers per round."
+            description = "Log speed and health multipliers per round."
         };
 
         public static readonly ModSettingBool LogBads = new(true)
