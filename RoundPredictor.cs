@@ -6,6 +6,7 @@ using Il2CppAssets.Scripts.Simulation.Track.RoundManagers;
 using BTD_Mod_Helper.Extensions;
 using System.Collections.Generic;
 using System;
+using Il2CppAssets.Scripts.Unity.UI_New.Popups;
 
 [assembly: MelonInfo(typeof(RoundPredictor.RoundPredictor), ModHelperData.Name, ModHelperData.Version, ModHelperData.RepoOwner)]
 [assembly: MelonGame("Ninja Kiwi", "BloonsTD6")]
@@ -24,6 +25,8 @@ public class RoundPredictor : BloonsTD6Mod
         base.OnUpdate();
 
         if (InGame.instance == null) return;
+
+        if (PopupScreen.instance.IsPopupActive()) return;
 
         if (Settings.PredictRoundsKey.JustPressed())
         {
